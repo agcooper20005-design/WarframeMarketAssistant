@@ -19,27 +19,66 @@ public class InventoryImportService {
     private static final String DATA_FILE_NAME =
             "lastData.dat";
 
-    private static final long TIMEOUT_MS = 30_000;
+    private static final long TIMEOUT_MS = 60_000;
 
     public String importInventory() {
 
-        Path projectRoot =
+        Path workingDirectory =
                 Paths.get("").toAbsolutePath();
 
         Path helperPath =
-                projectRoot.resolve(HELPER_NAME);
+                workingDirectory.resolve(HELPER_NAME);
 
-        Path inventoryPath =
-                projectRoot.resolve(INVENTORY_FILE_NAME);
+        Path helperWorkingDriectory = null;
 
-        Path dataPath =
-                projectRoot.resolve(DATA_FILE_NAME);
+        if(Files.exists(helperPath)) {
+
+            // Development
+            helperWorkingDriectory = workingDirectory;
+
+        }else {
+            // Production
+            helperPath = workingDirectory.resolve("app").resolve(HELPER_NAME);
+
+            if (!Files.exists(helperPath)) {
+                throw new IllegalStateException(
+                        "warframe-api-helper.exe was not found."
+                );
+            }
+
+            String localAppData = System.getenv("LOCALAPPDATA");
+            helperWorkingDriectory = Paths.get(localAppData, "WarframeMarketAssistant");
+
+            try{
+                Files.createDirectories(helperWorkingDriectory);
+            }catch (IOException e){
+                throw new IllegalStateException(
+                        "Could not create application data directory: " + helperWorkingDriectory.getFileName(),
+                        e
+                );
+            }
+
+        }
 
         if (!Files.exists(helperPath)) {
             throw new IllegalStateException(
                     "warframe-api-helper.exe was not found."
             );
         }
+
+
+
+
+
+        Path inventoryPath =
+                helperWorkingDriectory.resolve(INVENTORY_FILE_NAME);
+
+
+        Path dataPath =
+                helperWorkingDriectory.resolve(DATA_FILE_NAME);
+
+
+
 
         // Delete old files first.
         // This guarantees anything created after this point is fresh.
@@ -56,7 +95,7 @@ public class InventoryImportService {
                     );
 
             processBuilder.directory(
-                    projectRoot.toFile()
+                    helperWorkingDriectory.toFile()
             );
 
             processBuilder.inheritIO();

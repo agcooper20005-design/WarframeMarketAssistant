@@ -394,6 +394,15 @@ That is intentional.
 
 The application always allows the player to manually select or enter another price.
 
+## License
+
+WarframeMarketAssistant is currently source-available for viewing and
+contribution. No open-source license has been granted for the project at
+this time.
+
+Third-party components remain subject to their respective licenses.
+See `THIRD_PARTY_LICENSES.txt` for details.
+
 ## Important Disclaimer
 
 This project is not affiliated with Digital Extremes or Warframe.Market.
